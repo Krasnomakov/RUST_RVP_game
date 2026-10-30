@@ -286,12 +286,15 @@ pub(crate) fn start_portal_maze_scene(
 
     let save_path = project_files.root.join("data/saves/level-006-world.bin");
     let saved = load_saved_world(&save_path, config.maze_schemas.len()).unwrap_or_default();
-    let active_maze = config
+    let active_maze = if config
         .maze_schemas
         .iter()
         .any(|schema| schema.id == saved.active_maze)
-        .then_some(saved.active_maze)
-        .unwrap_or(config.maze_schemas[0].id);
+    {
+        saved.active_maze
+    } else {
+        config.maze_schemas[0].id
+    };
     let active_schema = config
         .maze_schemas
         .iter()

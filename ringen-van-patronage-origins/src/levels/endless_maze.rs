@@ -1,4 +1,5 @@
 use super::void_level::{FireHero, spawn_fire_hero};
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use std::collections::VecDeque;
 use std::f32::consts::FRAC_PI_2;
@@ -572,34 +573,59 @@ pub(crate) fn animate_ring(time: Res<Time>, mut rings: Query<(&RingTarget, &mut 
     }
 }
 
+type HookProjectileQuery<'w, 's> = Query<
+    'w,
+    's,
+    (
+        &'static mut Transform,
+        &'static mut HookProjectile,
+        &'static mut Visibility,
+    ),
+    (With<HookProjectile>, Without<FireHero>),
+>;
+
+type HookChainQuery<'w, 's> = Query<
+    'w,
+    's,
+    (
+        &'static mut Transform,
+        &'static mut Visibility,
+        &'static HookChain,
+    ),
+    (With<HookChain>, Without<FireHero>, Without<HookProjectile>),
+>;
+
+type RingCatchQuery<'w, 's> = Query<
+    'w,
+    's,
+    (Entity, &'static Transform, &'static RingTarget),
+    (
+        Without<HookProjectile>,
+        Without<HookChain>,
+        Without<FireHero>,
+    ),
+>;
+
+#[derive(SystemParam)]
+pub(crate) struct HookWorld<'w, 's> {
+    hooks: HookProjectileQuery<'w, 's>,
+    chains: HookChainQuery<'w, 's>,
+    rings: RingCatchQuery<'w, 's>,
+    maze_objects: Query<'w, 's, Entity, With<MazeObject>>,
+}
+
 pub(crate) fn advance_hook(
     mut commands: Commands,
     time: Res<Time>,
     mut session: ResMut<EndlessMazeSession>,
     assets: Res<MazeAssets>,
     mut heroes: Query<&mut Transform, (With<FireHero>, Without<HookProjectile>)>,
-    mut hooks: Query<
-        (&mut Transform, &mut HookProjectile, &mut Visibility),
-        (With<HookProjectile>, Without<FireHero>),
-    >,
-    mut chains: Query<
-        (&mut Transform, &mut Visibility, &HookChain),
-        (With<HookChain>, Without<FireHero>, Without<HookProjectile>),
-    >,
-    rings: Query<
-        (Entity, &Transform, &RingTarget),
-        (
-            Without<HookProjectile>,
-            Without<HookChain>,
-            Without<FireHero>,
-        ),
-    >,
-    maze_objects: Query<Entity, With<MazeObject>>,
+    mut hook_world: HookWorld,
 ) {
     let Ok(mut hero) = heroes.single_mut() else {
         return;
     };
-    let Ok((mut transform, mut hook, mut visibility)) = hooks.single_mut() else {
+    let Ok((mut transform, mut hook, mut visibility)) = hook_world.hooks.single_mut() else {
         return;
     };
     let delta_time = time.delta_secs();
@@ -608,7 +634,7 @@ pub(crate) fn advance_hook(
     if !hook.flying && !hook.returning {
         transform.translation = muzzle;
         *visibility = Visibility::Hidden;
-        for (_, mut chain_visibility, _) in &mut chains {
+        for (_, mut chain_visibility, _) in &mut hook_world.chains {
             *chain_visibility = Visibility::Hidden;
         }
         return;
@@ -621,16 +647,20 @@ pub(crate) fn advance_hook(
         let next = arc_position(hook.start, hook.target, hook.progress, height);
         transform.translation = next;
 
-        let caught = rings.iter().find_map(|(entity, ring_transform, ring)| {
-            (distance_to_segment(ring_transform.translation, previous, next) <= HOOK_CATCH_RADIUS)
-                .then_some((entity, ring.base))
-        });
+        let caught = hook_world
+            .rings
+            .iter()
+            .find_map(|(entity, ring_transform, ring)| {
+                (distance_to_segment(ring_transform.translation, previous, next)
+                    <= HOOK_CATCH_RADIUS)
+                    .then_some((entity, ring.base))
+            });
 
         if let Some((_, base)) = caught {
             // The saved base position is the ring's floor location before the new room appears.
             let destination = Vec3::new(base.x, 0.0, base.z);
             hero.translation = destination;
-            for entity in &maze_objects {
+            for entity in &hook_world.maze_objects {
                 commands.entity(entity).despawn();
             }
             session.next_room(destination);
@@ -660,7 +690,7 @@ pub(crate) fn advance_hook(
     }
 
     let end = transform.translation;
-    for (mut link_transform, mut link_visibility, link) in &mut chains {
+    for (mut link_transform, mut link_visibility, link) in &mut hook_world.chains {
         let fraction = (link.index as f32 + 1.0) / (CHAIN_LINKS as f32 + 1.0);
         let point = if hook.flying {
             arc_position(
