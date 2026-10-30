@@ -26,7 +26,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            pkg-config g++ libasound2-dev libudev-dev libx11-dev
+            pkg-config g++ libasound2-dev libudev-dev libx11-dev \
+            libwayland-dev libxkbcommon-dev
 
       - uses: dtolnay/rust-toolchain@stable
         with:
