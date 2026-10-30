@@ -10,7 +10,7 @@ The Web Learning Studio combines editable Rust source, lesson notes, review prom
 ## Run the game
 
 ```sh
-cd /Users/nulll/Documents/RUST/ringen-van-patronage-origins
+cd ringen-van-patronage-origins
 cargo run
 ```
 

@@ -16,7 +16,7 @@ Online source repositories (also checked out locally as searchable Markdown/sour
 - [Rust by Example source](rust-by-example-source/src/SUMMARY.md) — upstream: https://github.com/rust-lang/rust-by-example
 - [Reference source](reference-source/src/SUMMARY.md) — upstream: https://github.com/rust-lang/reference
 
-Open generated offline docs in a browser with `open /Users/nulll/Documents/RUST/reading/offline-book/index.html` (replace `offline-book` with another link above). In a terminal, run `rustup doc --book`, `rustup doc --std`, or `rustup doc --path`.
+Open generated offline docs in a browser with `open reading/offline-book/index.html` on macOS, `xdg-open` on Linux, or `start` on Windows (replace `offline-book` with another link above). In a terminal, run `rustup doc --book`, `rustup doc --std`, or `rustup doc --path`.
 
 ## Version and refresh
 

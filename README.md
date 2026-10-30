@@ -2,10 +2,20 @@
 
 A hands-on start with Rust. Rust and Cargo were installed with `rustup` (stable toolchain).
 
+## Quick start (any OS)
+
+Prerequisites: [Rust via rustup](https://rustup.rs). On Linux, Bevy also needs system libraries (Debian/Ubuntu: `sudo apt-get install pkg-config g++ libasound2-dev libudev-dev libx11-dev libwayland-dev libxkbcommon-dev`). The Learning Studio script below installs the WebAssembly target and `wasm-bindgen-cli` for you.
+
+```sh
+./scripts/test.sh     # fmt, check, clippy and tests for every crate
+./scripts/studio.sh   # builds the game for the browser and serves the IDE at http://127.0.0.1:4173
+```
+
+The offline reading shelf in `reading/` is optional and not part of the repository; the studio works without it and links to the online docs instead.
+
 ## Run the first program
 
 ```sh
-cd /Users/nulll/Documents/RUST
 cargo run
 ```
 

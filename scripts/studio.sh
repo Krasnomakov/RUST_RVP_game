@@ -30,8 +30,11 @@ for _ in $(seq 1 60); do
     sleep 1
 done
 
-if command -v open >/dev/null 2>&1; then
-    open "$url"
-fi
+for opener in open xdg-open; do
+    if command -v "$opener" >/dev/null 2>&1; then
+        "$opener" "$url" >/dev/null 2>&1 || true
+        break
+    fi
+done
 
 wait "$server_pid"

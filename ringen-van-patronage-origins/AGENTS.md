@@ -5,4 +5,4 @@
 - Follow the Entity-Component-System model: components hold per-entity data, resources hold shared world state, and systems implement behavior.
 - Prefer small incremental examples that can be changed and observed by the learner.
 - Use the Bevy 0.20 API pinned by `Cargo.lock`; consult current documentation if changing the Bevy version.
-- The parent `/Users/nulll/Documents/RUST/AGENTS.md` describes the local Rust learning references.
+- The repository-root `AGENTS.md` describes the local Rust learning references.
