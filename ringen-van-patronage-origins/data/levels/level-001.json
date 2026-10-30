@@ -1,0 +1,41 @@
+{
+  "id": "level-001",
+  "number": 1,
+  "title": "It all begins with a ring",
+  "subtitle": "GEOMETRY · SPACE · MOTION",
+  "description": "A single ring floats in a quiet 3D space. Watch how a few lines of Rust create its shape and motion.",
+  "source_path": "src/levels/ring.rs",
+  "explanation": "Ring is a component: data attached to the ring entity. It stores the ring's resting height and spin speed. Space is a resource: shared settings used by objects in the environment. Each frame, the animation system reads elapsed time and calculates a new height using a sine wave. The ring moves smoothly up and down, while its rotation uses frame time so it spins at a steady speed on different computers. The light and camera are entities in the Bevy scene. Try changing float_height or float_cycles_per_second in main.rs and run the level again.",
+  "algorithm": "height(t) = resting height + float height × sin(2π × cycles per second × t)",
+  "learning_goals": [
+    "Distinguish a component (data on one entity) from a resource (shared settings).",
+    "Read a system that updates a Transform once per frame.",
+    "Explain why animation uses elapsed time instead of a fixed per-frame amount."
+  ],
+  "review_points": [
+    "Where does the ring's resting height and spin speed live?",
+    "How does elapsed time keep the spin rate consistent across frame rates?",
+    "What happens to the float if the amplitude is zero or the frequency changes?"
+  ],
+  "practice_tasks": [
+    "Change the floating height and frequency in the Space resource, then compare the motion.",
+    "Change the ring's spin speed and identify where that per-entity value is stored.",
+    "Temporarily set the float height to zero. Predict the result before running the level."
+  ],
+  "readings": [
+    {
+      "title": "Rust Book: common programming concepts",
+      "local_path": "reading/offline-book/ch03-00-common-programming-concepts.html",
+      "url": "https://doc.rust-lang.org/book/ch03-00-common-programming-concepts.html"
+    },
+    {
+      "title": "Rust f32 sine method",
+      "local_path": "reading/offline-std/primitive.f32.html",
+      "url": "https://doc.rust-lang.org/std/primitive.f32.html#method.sin"
+    },
+    {
+      "title": "Bevy 0.20 API reference",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/"
+    }
+  ]
+}

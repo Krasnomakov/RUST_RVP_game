@@ -1,0 +1,39 @@
+{
+  "format_version": 1,
+  "ring_population": 6,
+  "maze_schemas": [
+    {
+      "id": 0,
+      "name": "Cinder Hall",
+      "seed": 1481,
+      "cells": 7,
+      "extra_passages": 4,
+      "portals": [
+        { "cell": [0, 0], "destination_maze": 1, "destination_portal": 0 },
+        { "cell": [6, 6], "destination_maze": 2, "destination_portal": 1 }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Azure Crossings",
+      "seed": 2917,
+      "cells": 8,
+      "extra_passages": 7,
+      "portals": [
+        { "cell": [7, 0], "destination_maze": 0, "destination_portal": 0 },
+        { "cell": [0, 7], "destination_maze": 2, "destination_portal": 0 }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Gilded Deep",
+      "seed": 5179,
+      "cells": 9,
+      "extra_passages": 10,
+      "portals": [
+        { "cell": [0, 0], "destination_maze": 1, "destination_portal": 1 },
+        { "cell": [8, 8], "destination_maze": 0, "destination_portal": 1 }
+      ]
+    }
+  ]
+}

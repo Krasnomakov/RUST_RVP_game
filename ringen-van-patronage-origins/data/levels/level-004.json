@@ -1,0 +1,55 @@
+{
+  "id": "level-004",
+  "number": 4,
+  "title": "The Hook",
+  "subtitle": "MOUSE AIM · PROJECTILE · RETRIEVAL",
+  "description": "Move the fire across the tiled void. Aim with the mouse and left-click to throw a chain hook at a freely floating ring. A catch reels the ring back to the fire, adds to the counter, and spawns another ring.",
+  "source_path": "src/levels/hook.rs",
+  "explanation": "The game turns the mouse's 2D screen position into a 3D camera ray, then finds where that ray intersects a horizontal aiming plane. A left click launches the hook toward that world point. The hook has three simple states: idle, flying, and returning. While flying, the system checks the whole movement segment against the ring so a fast hook cannot skip over it between frames. On contact, the ring follows the hook back to the fire. At the fire, the ring is consumed, the counter increases, and a replacement ring appears at a new position.",
+  "algorithm": "mouse screen point → camera ray → aim-plane point → hook flight → segment/ring collision → reel in → consume + count + respawn",
+  "learning_goals": [
+    "Convert a 2D mouse position into a useful point in the 3D world with a camera ray and plane intersection.",
+    "Read a small state machine that moves the hook through idle, flying, and returning states.",
+    "Explain how frame time controls projectile speed and how segment collision avoids tunneling.",
+    "Trace how a caught ring is carried back, consumed, counted, and replaced."
+  ],
+  "review_points": [
+    "Why does the cursor need a camera ray and an aiming plane before it can target a 3D position?",
+    "What prevents the hook from being launched again while it is already flying or returning?",
+    "Why test the segment from the previous hook position to the next one instead of only checking the endpoint?",
+    "At what moment does the counter increase, and what triggers the replacement ring?",
+    "Which components hold per-entity state, and which resource holds the shared catch count?"
+  ],
+  "practice_tasks": [
+    "Change the hook speed and catch radius, then compare how easy the ring is to catch.",
+    "Adjust the ring's bob and drift values. Try aiming ahead of a moving ring.",
+    "Change the number of chain links while keeping the hook flight speed the same.",
+    "Make the hook miss on purpose, then explain how it returns without changing the count.",
+    "Add a visual or sound cue when the hook changes from flying to returning."
+  ],
+  "readings": [
+    {
+      "title": "Rust Book: functions and return values",
+      "local_path": "reading/offline-book/ch03-03-how-functions-work.html",
+      "url": "https://doc.rust-lang.org/book/ch03-03-how-functions-work.html"
+    },
+    {
+      "title": "Rust Book: defining an enum",
+      "local_path": "reading/offline-book/ch06-01-defining-an-enum.html",
+      "url": "https://doc.rust-lang.org/book/ch06-01-defining-an-enum.html"
+    },
+    {
+      "title": "Rust standard library: Option",
+      "local_path": "reading/offline-std/option/index.html",
+      "url": "https://doc.rust-lang.org/std/option/enum.Option.html"
+    },
+    {
+      "title": "Bevy Camera::viewport_to_world",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/prelude/struct.Camera.html#method.viewport_to_world"
+    },
+    {
+      "title": "Bevy mouse input",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/input/mouse/enum.MouseButton.html"
+    }
+  ]
+}

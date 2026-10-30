@@ -1,0 +1,46 @@
+{
+  "id": "level-002",
+  "number": 2,
+  "title": "The Void",
+  "subtitle": "KEYBOARD · MOVEMENT · TIME",
+  "description": "Guide a small living flame across a tiled floor in empty space. Use W/A/S/D or the arrow keys.",
+  "source_path": "src/levels/void_level.rs",
+  "explanation": "FireHero is a component that stores the character's movement speed. Each frame, the control system checks which keys are held and builds a direction vector. We normalize the vector so diagonal movement is not faster. Then we multiply by speed and frame time (delta_secs) to get this frame's movement distance. The floor is a checkerboard of simple 3D tiles. The fire is three glowing cones whose scale and angle wobble slightly. Movement is bounded by the tile field; collision and gravity come later.",
+  "algorithm": "direction = normalize(keyboard input)\nposition += direction × speed × delta time",
+  "learning_goals": [
+    "Translate held keyboard keys into a direction vector.",
+    "Explain why the direction is normalized before applying speed.",
+    "Trace how speed and frame time produce a movement distance."
+  ],
+  "review_points": [
+    "What values can the direction vector have when no keys are held?",
+    "Why would diagonal movement be faster if the vector were not normalized?",
+    "What changes when movement is multiplied by delta_secs?"
+  ],
+  "practice_tasks": [
+    "Change FireHero speed and describe how far the fire moves in the same time.",
+    "Remove the normalization in a temporary experiment and compare diagonal movement.",
+    "Add a key that moves the fire more slowly, using a separate speed value."
+  ],
+  "readings": [
+    {
+      "title": "Rust Book: data types",
+      "local_path": "reading/offline-book/ch03-02-data-types.html",
+      "url": "https://doc.rust-lang.org/book/ch03-02-data-types.html"
+    },
+    {
+      "title": "Rust Book: how functions work",
+      "local_path": "reading/offline-book/ch03-03-how-functions-work.html",
+      "url": "https://doc.rust-lang.org/book/ch03-03-how-functions-work.html"
+    },
+    {
+      "title": "Rust by Example: flow control",
+      "local_path": "reading/offline-rust-by-example/flow_control.html",
+      "url": "https://doc.rust-lang.org/rust-by-example/flow_control.html"
+    },
+    {
+      "title": "Bevy 0.20 API reference",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+/target/
+.DS_Store
+
+# Reference material cloned for offline reading (AGENTS.md); not project code.
+/reading/*-source/
+/reading/offline-*

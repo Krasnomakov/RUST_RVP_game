@@ -1,0 +1,59 @@
+{
+  "id": "level-006",
+  "number": 6,
+  "title": "The Ringways",
+  "subtitle": "PORTAL NETWORK · 72 RING TIERS · BINARY WORLD STATE",
+  "description": "Explore a network of maze worlds. Walk into a portal to travel; rings wander through passages, leap over walls, and can enter portals too. Catch the moving rings, from common level 1 to exceptionally rare level 72.",
+  "source_path": "src/levels/portal_maze.rs",
+  "explanation": "Level 6 separates maze definitions from live gameplay. The small JSON schema file stores each maze's ID, seed, size, alternate passages, and portal destinations. Only the active maze has floor, walls, portals, and ring meshes spawned. When the fire travels through a portal, the old scene is removed and the destination schema is generated and drawn; inactive mazes and their rings keep their last saved values without moving or rendering. Each ring has a tier from 1 through 72, a maze ID, position, target, speed, size growth, jump state, and portal cooldown. Integer weights of floor(10,000 / tier²) make level 1 appear most often and level 72 extremely rarely. A versioned binary record stores the active maze, player position, per-tier catch totals, and each traveling ring's transform and motion values. The desktop app checkpoints it to data/saves/level-006-world.bin; the browser preview keeps the same binary record in local storage. Checkpoints follow portal travel or collection and are also written periodically while rings move.",
+  "algorithm": "load simple maze schemas → generate the active map → update only rings in that map → walk or jump to open tiles → transfer rings through portals → collect and reroll by weighted tier → switch maze on player portal contact → checkpoint binary world state",
+  "learning_goals": [
+    "Distinguish a maze schema (small values describing a world) from a rendered maze scene (live Bevy entities).",
+    "Trace how portal endpoints map to another maze and another portal while the player's world position changes.",
+    "Explain why inactive mazes do not render or update, and how their ring records retain their last position.",
+    "Read a weighted random selection where lower tier numbers receive much higher integer weights.",
+    "Inspect how fixed-size binary fields encode ring tier, maze ID, transform, speed, growth, and movement progress.",
+    "Follow how collecting a ring updates the per-tier totals and creates a replacement ring."
+  ],
+  "review_points": [
+    "Which values define a maze schema, and which data only exists while that maze is active?",
+    "What prevents the renderer from spawning entities for every maze at once?",
+    "How does a ring keep its state while it waits in an inactive maze?",
+    "Why does the tier 1 weight dominate the tier 72 weight?",
+    "How does the binary format know which version and active maze it stores?",
+    "Which fields must be saved so a ring can resume travel after loading?"
+  ],
+  "practice_tasks": [
+    "Add a fourth maze schema and connect it to two existing portal endpoints.",
+    "Change the ring population and observe how many moving targets fill one maze.",
+    "Change the tier weight formula from inverse-square to inverse-cube and compare rarity.",
+    "Adjust ring speed and hop probability, then distinguish corridor movement from a wall-clearing jump.",
+    "Add one value to the binary record and update both the versioned encoder and decoder.",
+    "Move a ring through a portal, leave that maze, return, and compare its saved position with its resumed motion."
+  ],
+  "readings": [
+    {
+      "title": "Rust Book: enums and pattern matching",
+      "local_path": "reading/offline-book/ch06-00-enums.html",
+      "url": "https://doc.rust-lang.org/book/ch06-00-enums.html"
+    },
+    {
+      "title": "Rust standard library: reading and writing files",
+      "local_path": "reading/offline-std/fs/index.html",
+      "url": "https://doc.rust-lang.org/std/fs/"
+    },
+    {
+      "title": "Rust standard library: integer conversions",
+      "local_path": "reading/offline-std/convert/trait.TryFrom.html",
+      "url": "https://doc.rust-lang.org/std/convert/trait.TryFrom.html"
+    },
+    {
+      "title": "Rust Book: random number generation discussion",
+      "url": "https://doc.rust-lang.org/book/ch02-00-guessing-game-tutorial.html"
+    },
+    {
+      "title": "Bevy entities, components, and resources",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/"
+    }
+  ]
+}

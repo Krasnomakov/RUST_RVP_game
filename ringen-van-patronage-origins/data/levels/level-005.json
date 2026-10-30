@@ -1,0 +1,58 @@
+{
+  "id": "level-005",
+  "number": 5,
+  "title": "The Infinite Labyrinth",
+  "subtitle": "ENDLESS GENERATION · HOOK TRAJECTORY · TELEPORTATION",
+  "description": "Explore a fresh, more intricate maze for every ring. Aim with the mouse and throw the chain hook in an arc over the walls. When its path reaches a ring, the ring is consumed and the fire teleports to the ring's floor position as the next maze forms around it.",
+  "source_path": "src/levels/endless_maze.rs",
+  "explanation": "The maze is a grid of walkable cells and walls. An iterative depth-first search carves a connected route through every cell; later rooms add extra openings to create alternate paths. A breadth-first search measures reachable distances and chooses a ring tile within hook range. Keyboard movement checks the fire's footprint against the walkable grid. Mouse aiming converts the cursor into a camera ray and intersects it with the ring-height plane. The hook follows a parabolic trajectory whose high point clears the walls, then tests each frame's movement segment against the ring. On a catch, the code saves the ring's floor position, moves the fire there, increments the counter, and generates a new seeded maze around that same position. New rooms keep appearing without a finish screen; their grid grows from 15 × 15 to at most 27 × 27 cells of rendered tiles.",
+  "algorithm": "DFS carves a connected grid → extra passages add choices → BFS selects a reachable target → mouse ray aims → arcing hook tests each movement segment → catch saves ring position and teleports fire → next seeded maze grows around it",
+  "learning_goals": [
+    "Trace how iterative depth-first search creates connected passages and how added openings change a perfect maze into a maze with loops.",
+    "Explain how breadth-first search measures shortest path distance and how the target selector uses that distance.",
+    "Follow a mouse position from the screen through a camera ray to a point on a 3D plane.",
+    "Describe how a parabolic path clears walls and how segment collision detects a ring between frames.",
+    "Trace how the caught ring's saved position becomes the fire's new position and the next maze's origin."
+  ],
+  "review_points": [
+    "Why does the depth-first search use a stack, and what does an empty set of choices mean?",
+    "What changes when the generator opens extra connectors after carving its spanning tree?",
+    "How does the BFS distance limit keep the selected ring within useful hook range?",
+    "Which part of the hook trajectory makes it clear walls, and which part makes it meet the ring?",
+    "Why is the ring's base floor position saved before the next maze is generated?",
+    "Which state belongs to the shared session resource, and which state belongs to each hook or ring entity?"
+  ],
+  "practice_tasks": [
+    "Change START_CELLS and MAX_CELLS, then watch how maze scale changes with ring count.",
+    "Adjust the extra passage formula and compare dead ends with alternate routes.",
+    "Change the hook arc height. Find the smallest height that clears every wall.",
+    "Adjust HOOK_CATCH_RADIUS and HOOK_SPEED, then explain how the segment check prevents tunneling.",
+    "Change the maximum BFS distance and compare ring placement distance with hook usability.",
+    "Add a brief teleport flash at the saved ring position before drawing the next maze."
+  ],
+  "readings": [
+    {
+      "title": "Rust Book: vectors",
+      "local_path": "reading/offline-book/ch08-01-vectors.html",
+      "url": "https://doc.rust-lang.org/book/ch08-01-vectors.html"
+    },
+    {
+      "title": "Rust VecDeque collection",
+      "local_path": "reading/offline-std/collections/struct.VecDeque.html",
+      "url": "https://doc.rust-lang.org/std/collections/struct.VecDeque.html"
+    },
+    {
+      "title": "Rust Book: defining an enum",
+      "local_path": "reading/offline-book/ch06-01-defining-an-enum.html",
+      "url": "https://doc.rust-lang.org/book/ch06-01-defining-an-enum.html"
+    },
+    {
+      "title": "Bevy Camera::viewport_to_world",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/prelude/struct.Camera.html#method.viewport_to_world"
+    },
+    {
+      "title": "Bevy StandardMaterial and meshes",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/"
+    }
+  ]
+}

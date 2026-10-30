@@ -1,0 +1,49 @@
+{
+  "id": "level-003",
+  "number": 3,
+  "title": "The Labyrinth",
+  "subtitle": "PROCEDURAL MAZES · SEARCH · COLLECTION",
+  "description": "Guide the fire through 12 connected mazes. Find the glowing ring in each maze to open the next one.",
+  "source_path": "src/levels/maze.rs",
+  "explanation": "Each maze is generated with an iterative depth-first search that carves passages through a grid. A breadth-first search then finds the farthest reachable tile and places the ring there. Hold W/A/S/D or the arrow keys to move. The movement system checks the next tile against the walkable grid, so the fire slides along walls instead of passing through them. Collecting a ring advances to the next deterministic maze. Collect all 12 rings to finish.",
+  "algorithm": "DFS carves a connected maze → BFS finds a far tile → collision-aware movement → collect ring → next maze",
+  "maze_count": 12,
+  "learning_goals": [
+    "Describe how depth-first search carves passages using a stack of visited cells.",
+    "Explain breadth-first search and why it finds a farthest reachable ring location here.",
+    "Follow how grid coordinates, collision checks, and level progression fit together."
+  ],
+  "review_points": [
+    "How does the generator avoid visiting a cell twice?",
+    "Which data structure represents pending DFS work, and what does popping it mean?",
+    "How does BFS ensure the chosen ring tile is reachable?",
+    "Where is the boundary between maze data and the systems that move the hero?"
+  ],
+  "practice_tasks": [
+    "Change the maze seed and observe which layouts change while connectivity remains.",
+    "Change the grid size, then inspect the start tile, ring tile, and wall boundaries.",
+    "Temporarily place the ring on a random tile and observe why the BFS placement is safer.",
+    "Trace one ring collection from input, through the collision grid, to the next maze."
+  ],
+  "readings": [
+    {
+      "title": "Rust Book: vectors",
+      "local_path": "reading/offline-book/ch08-01-vectors.html",
+      "url": "https://doc.rust-lang.org/book/ch08-01-vectors.html"
+    },
+    {
+      "title": "Rust Book: defining an enum",
+      "local_path": "reading/offline-book/ch06-01-defining-an-enum.html",
+      "url": "https://doc.rust-lang.org/book/ch06-01-defining-an-enum.html"
+    },
+    {
+      "title": "Rust VecDeque collection",
+      "local_path": "reading/offline-std/collections/struct.VecDeque.html",
+      "url": "https://doc.rust-lang.org/std/collections/struct.VecDeque.html"
+    },
+    {
+      "title": "Bevy 0.20 API reference",
+      "url": "https://docs.rs/bevy/0.20.1/bevy/"
+    }
+  ]
+}

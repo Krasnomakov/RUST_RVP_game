@@ -1,0 +1,5 @@
+/target/
+.DS_Store
+
+# Local play progress, regenerated on first run.
+/data/saves/progress.json

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#10151c" />
+    <title>Ringen — Learning Studio</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Ringen Learning Studio home">
+          <span class="brand-mark" aria-hidden="true">◉</span>
+          <span>RINGEN <span class="brand-light">/ LEARNING STUDIO</span></span>
+        </a>
+        <div class="topbar-status">
+          <span class="status-dot"></span>
+          <span>LOCAL WORKSPACE</span>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="sidebar">
+          <div class="side-heading">COURSE MAP</div>
+          <nav id="level-list" class="level-list" aria-label="Levels">
+            <div class="loading-card">Loading levels…</div>
+          </nav>
+          <div class="sidebar-bottom">
+            <div class="side-heading">REFERENCE SHELF</div>
+            <a href="/reading/README.md" target="_blank" rel="noreferrer">Offline Rust docs <span>↗</span></a>
+            <p>Rust Book, Rust by Example, standard library, and language reference.</p>
+          </div>
+          <div class="sidebar-foot">RUST GAME PROJECT <span>·</span> EDIT &amp; BUILD</div>
+        </aside>
+
+        <main class="main-content">
+          <section class="lesson-heading">
+            <div class="eyebrow" id="level-kicker">LEVEL 01 · FOUNDATIONS</div>
+            <div class="heading-row">
+              <div>
+                <h1 id="level-title">Loading lesson…</h1>
+                <p id="level-description" class="level-description"></p>
+              </div>
+              <div class="heading-badges">
+                <span class="badge badge-rust">RUST</span>
+                <span class="badge badge-bevy">BEVY</span>
+              </div>
+            </div>
+            <div class="algorithm-strip">
+              <span class="algorithm-label">CORE IDEA</span>
+              <code id="level-algorithm"></code>
+            </div>
+          </section>
+
+          <section class="game-panel panel" aria-label="Embedded game preview">
+            <div class="panel-header game-panel-header">
+              <span>LIVE GAME <span class="game-window-label">· BROWSER BUILD</span></span>
+              <div class="game-actions">
+                <span id="game-build-status" class="game-build-status" role="status" aria-live="polite">Checking browser build…</span>
+                <button id="expand-game" class="small-button" type="button" aria-expanded="false">Expand game</button>
+                <button id="rebuild-game" class="small-button" type="button">Recompile game</button>
+                <button id="reload-game" class="small-button" type="button">Reload</button>
+              </div>
+            </div>
+            <div class="game-frame-wrap">
+              <iframe id="game-frame" src="/game/" title="Ringen Van Patronage game menu and levels"></iframe>
+            </div>
+            <details id="build-details" class="build-details" hidden>
+              <summary>Build output</summary>
+              <pre id="build-output"></pre>
+            </details>
+          </section>
+
+          <div class="study-layout">
+            <section class="code-panel panel">
+              <div class="panel-header code-header">
+                <div class="file-label">
+                  <span class="file-icon">R</span>
+                  <span id="source-path">src/levels/…</span>
+                  <span id="source-state" class="read-only-tag">SAVED SOURCE</span>
+                </div>
+                <div class="code-actions">
+                  <input id="source-search" type="search" placeholder="Find in source" aria-label="Find in source" />
+                  <button id="refresh-source" class="icon-button" type="button" title="Reload source">↻</button>
+                  <button id="copy-source" class="small-button" type="button">Copy</button>
+                  <button id="save-recompile" class="save-button" type="button" disabled>Save &amp; Recompile</button>
+                </div>
+              </div>
+              <div class="editor-meta">
+                <span>RUST SOURCE</span>
+                <span id="source-line-count">— LINES</span>
+              </div>
+              <div class="code-scroll" aria-label="Rust source code">
+                <textarea id="source-editor" class="source-editor" aria-label="Editable Rust source code" autocomplete="off" autocapitalize="off" spellcheck="false" wrap="off" disabled>Fetching source…</textarea>
+              </div>
+            </section>
+
+            <section class="lesson-panel panel">
+              <div class="panel-header lesson-panel-header">
+                <span>STUDY GUIDE</span>
+                <span id="study-level-label">LEVEL 01</span>
+              </div>
+              <div class="tabs" role="tablist" aria-label="Study sections">
+                <button class="tab active" data-tab="learn" role="tab" aria-selected="true">Learn</button>
+                <button class="tab" data-tab="review" role="tab" aria-selected="false">Review</button>
+                <button class="tab" data-tab="practice" role="tab" aria-selected="false">Practice</button>
+                <button class="tab" data-tab="readings" role="tab" aria-selected="false">Readings</button>
+              </div>
+              <div id="lesson-content" class="lesson-content" role="tabpanel"></div>
+            </section>
+          </div>
+          <footer class="main-footer">
+            <span>Edits save to the selected Rust file before the browser game recompiles.</span>
+            <span>Local workspace · no account or upload</span>
+          </footer>
+        </main>
+      </div>
+    </div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
