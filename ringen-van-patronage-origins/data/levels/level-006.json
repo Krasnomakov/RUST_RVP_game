@@ -3,17 +3,19 @@
   "number": 6,
   "title": "The Ringways",
   "subtitle": "PORTAL NETWORK · 72 RING TIERS · BINARY WORLD STATE",
-  "description": "Explore a network of maze worlds. Walk into a portal to travel; rings wander through passages, leap over walls, and can enter portals too. Catch the moving rings, from common level 1 to exceptionally rare level 72.",
+  "description": "Explore a network of maze worlds. Walk into a portal to travel; rings wander through passages, leap over walls, and can enter portals too. Catch the moving rings, from common level 1 to exceptionally rare level 72: touch a ring, or aim with the mouse and left-click to throw your hook at it.",
   "source_path": "src/levels/portal_maze.rs",
-  "explanation": "Level 6 separates maze definitions from live gameplay. The small JSON schema file stores each maze's ID, seed, size, alternate passages, and portal destinations. Only the active maze has floor, walls, portals, and ring meshes spawned. When the fire travels through a portal, the old scene is removed and the destination schema is generated and drawn; inactive mazes and their rings keep their last saved values without moving or rendering. Each ring has a tier from 1 through 72, a maze ID, position, target, speed, size growth, jump state, and portal cooldown. Integer weights of floor(10,000 / tier²) make level 1 appear most often and level 72 extremely rarely. A versioned binary record stores the active maze, player position, per-tier catch totals, and each traveling ring's transform and motion values. The desktop app checkpoints it to data/saves/level-006-world.bin; the browser preview keeps the same binary record in local storage. Checkpoints follow portal travel or collection and are also written periodically while rings move.",
-  "algorithm": "load simple maze schemas → generate the active map → update only rings in that map → walk or jump to open tiles → transfer rings through portals → collect and reroll by weighted tier → switch maze on player portal contact → checkpoint binary world state",
+  "explanation": "Level 6 separates maze definitions from live gameplay. The small JSON schema file stores each maze's ID, seed, size, alternate passages, and portal destinations. Only the active maze has floor, walls, portals, and ring meshes spawned. The schema file's ring_population is a per-maze target: every maze starts with that many rings, and whenever the world loads or the fire enters a portal, any maze below its share first borrows a spare ring from a maze that holds extra and only creates new rings when none can be spared, so rings that wandered away do not make the total grow. When the fire travels through a portal, the old scene is removed and the destination schema is generated and drawn; inactive mazes and their rings keep their last saved values without moving or rendering. Each ring has a tier from 1 through 72, a maze ID, position, target, speed, size growth, jump state, and portal cooldown. Integer weights of floor(10,000 / tier²) make level 1 appear most often and level 72 extremely rarely. A versioned binary record stores the active maze, player position, per-tier catch totals, and each traveling ring's transform and motion values. The desktop app checkpoints it to data/saves/level-006-world.bin; the browser preview keeps the same binary record in local storage. Checkpoints follow portal travel or collection and are also written periodically while rings move.\n\nThe hook gives a second way to catch a ring. Aiming turns the mouse position into a world-space ray and intersects it with a flat plane at ring height, so the cursor becomes a point on the floor plan. A left click stores that point and starts the hook in a small state machine with three phases: Idle, Flying, and Returning. While Flying, the hook follows a shallow arc that passes over walls. Each frame the code tests the straight segment the hook just travelled, from its previous position to its new one, against every ring in the active maze; a segment test means a fast hook cannot skip over a ring between two frames. A hit runs the same catch routine as walking into a ring (update the totals, remove the ring, spawn a replacement), then the hook reels back to the fire. The hook is cancelled if the fire travels through a portal, and its state is never written to the binary save.",
+  "algorithm": "load simple maze schemas → generate the active map → update only rings in that map → walk or jump to open tiles → transfer rings through portals → collect and reroll by weighted tier → aim the cursor at the ring plane → throw the hook along an arc → test each frame's hook segment against active rings → catch and reel back → switch maze on player portal contact → checkpoint binary world state",
   "learning_goals": [
     "Distinguish a maze schema (small values describing a world) from a rendered maze scene (live Bevy entities).",
     "Trace how portal endpoints map to another maze and another portal while the player's world position changes.",
     "Explain why inactive mazes do not render or update, and how their ring records retain their last position.",
     "Read a weighted random selection where lower tier numbers receive much higher integer weights.",
     "Inspect how fixed-size binary fields encode ring tier, maze ID, transform, speed, growth, and movement progress.",
-    "Follow how collecting a ring updates the per-tier totals and creates a replacement ring."
+    "Follow how collecting a ring updates the per-tier totals and creates a replacement ring.",
+    "Describe the hook's Idle, Flying, and Returning phases and which events move it from one phase to the next.",
+    "Explain why catching tests the segment the hook travelled in a frame rather than only its end point."
   ],
   "review_points": [
     "Which values define a maze schema, and which data only exists while that maze is active?",
@@ -21,15 +23,20 @@
     "How does a ring keep its state while it waits in an inactive maze?",
     "Why does the tier 1 weight dominate the tier 72 weight?",
     "How does the binary format know which version and active maze it stores?",
-    "Which fields must be saved so a ring can resume travel after loading?"
+    "Which fields must be saved so a ring can resume travel after loading?",
+    "Why can walking and the hook share one catch function, and what does that function change?",
+    "What happens to a hook that is still flying when the fire enters a portal, and why?"
   ],
   "practice_tasks": [
     "Add a fourth maze schema and connect it to two existing portal endpoints.",
-    "Change the ring population and observe how many moving targets fill one maze.",
+    "Change ring_population in level-006-schemas.json and observe how many moving targets fill each maze.",
     "Change the tier weight formula from inverse-square to inverse-cube and compare rarity.",
     "Adjust ring speed and hop probability, then distinguish corridor movement from a wall-clearing jump.",
     "Add one value to the binary record and update both the versioned encoder and decoder.",
-    "Move a ring through a portal, leave that maze, return, and compare its saved position with its resumed motion."
+    "Move a ring through a portal, leave that maze, return, and compare its saved position with its resumed motion.",
+    "Change HOOK_CATCH_RADIUS and HOOK_SPEED, then find the smallest radius that still catches a fast high-tier ring.",
+    "Scale the catch radius by the ring's size so large high-tier rings are easier to hit.",
+    "Make the hook pull a caught ring back to the fire before scoring it instead of scoring on contact."
   ],
   "readings": [
     {

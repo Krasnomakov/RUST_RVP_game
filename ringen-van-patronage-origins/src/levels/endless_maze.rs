@@ -271,7 +271,7 @@ impl MazeLayout {
         open
     }
 
-    fn clamp_aim(&self, mut point: Vec3) -> Vec3 {
+    pub(crate) fn clamp_aim(&self, mut point: Vec3) -> Vec3 {
         let min_x = self.origin.x - self.start.0 as f32 - 0.35;
         let max_x = self.origin.x + (self.width - 1 - self.start.0) as f32 + 0.35;
         let min_z = self.origin.z - self.start.1 as f32 - 0.35;
@@ -430,30 +430,7 @@ fn spawn_hook(commands: &mut Commands, assets: &MazeAssets) {
             Visibility::Hidden,
         ))
         .id();
-    let points = [
-        Vec3::new(0.0, 0.22, 0.0),
-        Vec3::new(0.0, -0.015, 0.0),
-        Vec3::new(0.07, -0.105, 0.0),
-        Vec3::new(0.16, -0.13, 0.0),
-        Vec3::new(0.235, -0.055, 0.0),
-        Vec3::new(0.22, 0.035, 0.0),
-        Vec3::new(0.145, 0.075, 0.0),
-    ];
-    commands.entity(hook).with_children(|parts| {
-        for pair in points.windows(2) {
-            let direction = pair[1] - pair[0];
-            let length = direction.length();
-            parts.spawn((
-                Mesh3d(assets.hook_segment.clone()),
-                MeshMaterial3d(assets.hook_material.clone()),
-                Transform {
-                    translation: (pair[0] + pair[1]) * 0.5,
-                    rotation: Quat::from_rotation_arc(Vec3::Y, direction.normalize()),
-                    scale: Vec3::new(1.0, length, 1.0),
-                },
-            ));
-        }
-    });
+    attach_hook_shape(commands, hook, &assets.hook_segment, &assets.hook_material);
 
     commands.spawn((
         AimMarker,
@@ -739,12 +716,47 @@ pub(crate) fn remove_endless_maze(
     commands.remove_resource::<HookAim>();
 }
 
-fn arc_position(start: Vec3, target: Vec3, progress: f32, height: f32) -> Vec3 {
+/// Builds the curved metal hook from short stretched cylinders and parents them to `hook`.
+pub(crate) fn attach_hook_shape(
+    commands: &mut Commands,
+    hook: Entity,
+    segment: &Handle<Mesh>,
+    material: &Handle<StandardMaterial>,
+) {
+    let points = [
+        Vec3::new(0.0, 0.22, 0.0),
+        Vec3::new(0.0, -0.015, 0.0),
+        Vec3::new(0.07, -0.105, 0.0),
+        Vec3::new(0.16, -0.13, 0.0),
+        Vec3::new(0.235, -0.055, 0.0),
+        Vec3::new(0.22, 0.035, 0.0),
+        Vec3::new(0.145, 0.075, 0.0),
+    ];
+    commands.entity(hook).with_children(|parts| {
+        for pair in points.windows(2) {
+            let direction = pair[1] - pair[0];
+            let length = direction.length();
+            parts.spawn((
+                Mesh3d(segment.clone()),
+                MeshMaterial3d(material.clone()),
+                Transform {
+                    translation: (pair[0] + pair[1]) * 0.5,
+                    rotation: Quat::from_rotation_arc(Vec3::Y, direction.normalize()),
+                    scale: Vec3::new(1.0, length, 1.0),
+                },
+            ));
+        }
+    });
+}
+
+/// A point on a parabola from `start` to `target`; `height` is the extra lift at the midpoint.
+pub(crate) fn arc_position(start: Vec3, target: Vec3, progress: f32, height: f32) -> Vec3 {
     let progress = progress.clamp(0.0, 1.0);
     start.lerp(target, progress) + Vec3::Y * (4.0 * height * progress * (1.0 - progress))
 }
 
-fn distance_to_segment(point: Vec3, start: Vec3, end: Vec3) -> f32 {
+/// Shortest 3D distance from `point` to the line segment `start`..`end`.
+pub(crate) fn distance_to_segment(point: Vec3, start: Vec3, end: Vec3) -> f32 {
     let segment = end - start;
     let length_squared = segment.length_squared();
     if length_squared <= f32::EPSILON {

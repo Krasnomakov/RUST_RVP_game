@@ -25,8 +25,9 @@ use levels::{
         remove_maze_scene, start_maze_scene, update_maze_status,
     },
     portal_maze::{
-        PortalMazeStatus, PortalWorld, advance_traveling_rings, animate_portals, checkpoint_world,
-        collect_traveling_ring, enter_maze_portal, move_portal_hero, remove_portal_maze_scene,
+        PortalMazeStatus, PortalWorld, advance_portal_hook, advance_traveling_rings,
+        aim_portal_hook, animate_portals, checkpoint_world, collect_traveling_ring,
+        enter_maze_portal, fire_portal_hook, move_portal_hero, remove_portal_maze_scene,
         spawn_portal_hero, start_portal_maze_scene, update_portal_status,
     },
     ring::{Ring, Space, animate_ring, spawn_ring},
@@ -237,7 +238,10 @@ fn run_game() {
             (
                 move_portal_hero,
                 animate_fire,
+                aim_portal_hook,
+                fire_portal_hook,
                 advance_traveling_rings,
+                advance_portal_hook,
                 collect_traveling_ring,
                 enter_maze_portal,
                 animate_portals,
@@ -930,7 +934,7 @@ fn build_level_hud(
             "Move with W/A/S/D. Aim at a ring and left-click; the hook arcs over walls and teleports the fire on a catch."
         }
         AppScreen::PortalMazeLesson => {
-            "Move with W/A/S/D. Touch rings to catch them; walk into a glowing portal to travel between maze worlds."
+            "Move with W/A/S/D. Aim with the mouse and left-click to throw the hook at a moving ring, or touch it. Walk into a glowing portal to travel between maze worlds."
         }
         AppScreen::Menu => "",
     };
