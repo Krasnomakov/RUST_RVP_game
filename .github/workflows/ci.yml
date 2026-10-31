@@ -1,5 +1,7 @@
-name: CI
+name: CI/CD
 
+# One pipeline: tests run first, then the Learning Studio (IDE + game) is published to GitHub Pages.
+# Pull requests only run the tests. Deploying needs Settings -> Pages -> Source: GitHub Actions.
 on:
   push:
     branches: [main]
@@ -35,3 +37,33 @@ jobs:
 
       - name: Run test suite
         run: ./scripts/test.sh
+
+  deploy:
+    name: Build studio and publish
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/build-studio-site
+        with:
+          output-dir: site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

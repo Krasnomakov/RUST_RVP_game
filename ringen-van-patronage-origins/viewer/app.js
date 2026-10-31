@@ -9,6 +9,15 @@ const state = {
   search: "",
 };
 
+// "live" talks to the local Rust server; "static" is the hosted copy, which reads JSON files
+// exported by scripts/export-studio.sh and cannot run cargo.
+const STATIC_MODE = document.querySelector('meta[name="studio-mode"]')?.content === "static";
+const endpoints = {
+  levels: STATIC_MODE ? "api/levels.json" : "api/levels",
+  source: (levelId) => (STATIC_MODE ? `api/levels/${levelId}/source.txt` : `api/levels/${levelId}/source`),
+};
+const LOCAL_ONLY_HINT = "Available in the local studio: ./scripts/studio.sh";
+
 const levelList = document.querySelector("#level-list");
 const lessonContent = document.querySelector("#lesson-content");
 const sourceEditor = document.querySelector("#source-editor");
@@ -18,7 +27,7 @@ const gamePanel = document.querySelector(".game-panel");
 
 async function loadLevels() {
   try {
-    const response = await fetch("/api/levels");
+    const response = await fetch(endpoints.levels);
     if (!response.ok) throw new Error(`Server returned ${response.status}`);
     state.levels = await response.json();
     renderSidebar();
@@ -28,7 +37,7 @@ async function loadLevels() {
     else showFatal("No level data was found in data/levels.");
     initializeGamePreview();
   } catch (error) {
-    showFatal(`Could not load lessons from the local Rust project. ${error.message}`);
+    showFatal(`Could not load lessons from ${STATIC_MODE ? "this site" : "the local Rust project"}. ${error.message}`);
   }
 }
 
@@ -51,7 +60,7 @@ async function selectLevel(levelId, updateHash = true) {
   updateSourceControls();
 
   try {
-    const response = await fetch(`/api/levels/${level.id}/source`);
+    const response = await fetch(endpoints.source(level.id));
     if (!response.ok) throw new Error(`Source request returned ${response.status}`);
     state.source = await response.text();
     sourceEditor.disabled = false;
@@ -133,10 +142,16 @@ function renderReview() {
   button.type = "button";
   button.className = "review-button";
   button.textContent = state.review?.running ? "Checks are running…" : "▶  Run project checks";
-  button.disabled = Boolean(state.review?.running);
+  button.disabled = STATIC_MODE || Boolean(state.review?.running);
   button.addEventListener("click", runProjectChecks);
   lessonContent.append(button);
-  lessonContent.append(paragraph("Runs rustfmt, cargo check, and Clippy against the local game project."));
+  lessonContent.append(
+    paragraph(
+      STATIC_MODE
+        ? `Runs rustfmt, cargo check, and Clippy. ${LOCAL_ONLY_HINT}. The same checks run on every push in CI.`
+        : "Runs rustfmt, cargo check, and Clippy against the local game project.",
+    ),
+  );
 
   if (state.review?.error) {
     const error = document.createElement("div");
@@ -172,10 +187,11 @@ function renderReview() {
 }
 
 async function runProjectChecks() {
+  if (STATIC_MODE) return;
   state.review = { running: true };
   renderTabContent();
   try {
-    const response = await fetch("/api/review", { method: "POST" });
+    const response = await fetch("api/review", { method: "POST" });
     if (!response.ok) throw new Error(`Review returned ${response.status}`);
     state.review = await response.json();
   } catch (error) {
@@ -197,11 +213,13 @@ function renderReadings() {
   const listElement = document.createElement("div");
   listElement.className = "reading-list";
   for (const reading of state.level.readings || []) {
+    if (STATIC_MODE && !reading.url) continue;
     const card = document.createElement("a");
     card.className = "reading-card";
     card.target = "_blank";
     card.rel = "noreferrer";
-    if (reading.local_path?.startsWith("reading/")) {
+    const useLocalEdition = !STATIC_MODE && reading.local_path?.startsWith("reading/");
+    if (useLocalEdition) {
       card.href = `/reading/${reading.local_path.slice("reading/".length)}`;
     } else {
       card.href = reading.url;
@@ -209,11 +227,11 @@ function renderReadings() {
     const title = document.createElement("strong");
     title.textContent = reading.title;
     const description = document.createElement("span");
-    description.textContent = reading.local_path ? "Open local offline edition ↗" : "Open official online reference ↗";
+    description.textContent = useLocalEdition ? "Open local offline edition ↗" : "Open official online reference ↗";
     card.append(title, description);
     listElement.append(card);
 
-    if (reading.local_path && reading.url) {
+    if (useLocalEdition && reading.url) {
       const online = document.createElement("a");
       online.className = "reading-card online-reading";
       online.href = reading.url;
@@ -240,9 +258,9 @@ function renderSource() {
 
 function updateSourceControls() {
   const status = document.querySelector("#source-state");
-  status.textContent = state.dirty ? "UNSAVED EDITS" : "SAVED SOURCE";
+  status.textContent = STATIC_MODE ? "READ-ONLY SOURCE" : state.dirty ? "UNSAVED EDITS" : "SAVED SOURCE";
   status.classList.toggle("dirty", state.dirty);
-  saveButton.disabled = !state.dirty || state.buildRunning || sourceEditor.disabled;
+  saveButton.disabled = STATIC_MODE || !state.dirty || state.buildRunning || sourceEditor.disabled;
   document.querySelector("#source-line-count").textContent = `${sourceEditor.value.split("\n").length} LINES`;
 }
 
@@ -260,8 +278,12 @@ function showBuildOutput(output) {
 }
 
 async function initializeGamePreview() {
+  if (STATIC_MODE) {
+    setBuildStatus("Ready · prebuilt Rust game running in this page");
+    return;
+  }
   try {
-    const response = await fetch("/api/game/build");
+    const response = await fetch("api/game/build");
     if (!response.ok) throw new Error(`Build status returned ${response.status}`);
     const status = await response.json();
     if (status.available && !status.running) {
@@ -280,6 +302,7 @@ async function initializeGamePreview() {
 }
 
 async function startBrowserBuild() {
+  if (STATIC_MODE) return;
   if (state.dirty) {
     setBuildStatus("Save the edited source before rebuilding.", "error");
     return;
@@ -290,7 +313,7 @@ async function startBrowserBuild() {
   setBuildStatus("Compiling Rust for the browser…", "busy");
   showBuildOutput("");
   try {
-    const response = await fetch("/api/game/build", { method: "POST" });
+    const response = await fetch("api/game/build", { method: "POST" });
     if (!response.ok && response.status !== 409) {
       const body = await response.text();
       throw new Error(body || `Build request returned ${response.status}`);
@@ -308,7 +331,7 @@ async function startBrowserBuild() {
 async function pollBuild() {
   while (true) {
     await new Promise((resolve) => setTimeout(resolve, 900));
-    const response = await fetch("/api/game/build");
+    const response = await fetch("api/game/build");
     if (!response.ok) throw new Error(`Build status returned ${response.status}`);
     const status = await response.json();
     if (status.running) {
@@ -327,13 +350,14 @@ async function pollBuild() {
 }
 
 async function saveAndRecompile() {
+  if (STATIC_MODE) return;
   if (!state.level || !state.dirty || state.buildRunning) return;
   saveButton.disabled = true;
   saveButton.textContent = "Saving…";
   setBuildStatus(`Saving ${state.level.source_path}…`, "busy");
   const source = sourceEditor.value;
   try {
-    const response = await fetch(`/api/levels/${state.level.id}/source`, {
+    const response = await fetch(`api/levels/${state.level.id}/source`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ source }),
@@ -352,7 +376,7 @@ async function saveAndRecompile() {
 }
 
 function reloadGame() {
-  gameFrame.src = `/game/?reload=${Date.now()}`;
+  gameFrame.src = `game/?reload=${Date.now()}`;
 }
 
 function list(items = []) {
@@ -379,7 +403,7 @@ function paragraph(text) {
 
 function showFatal(message) {
   lessonContent.replaceChildren(heading("Viewer could not load"), paragraph(message));
-  levelList.textContent = "Check that the game project is available.";
+  levelList.textContent = STATIC_MODE ? "The lesson data failed to load." : "Check that the game project is available.";
   sourceEditor.value = message;
   sourceEditor.classList.add("source-error");
 }
@@ -438,4 +462,21 @@ document.querySelector("#expand-game").addEventListener("click", (event) => {
   event.currentTarget.textContent = expanded ? "Shrink game" : "Expand game";
 });
 
+function applyStaticMode() {
+  document.querySelector("#static-notice").hidden = false;
+  document.querySelector("#workspace-label").textContent = "HOSTED COPY";
+  document.querySelector("#footer-note").textContent = "Source is read-only here; run the studio locally to edit and recompile.";
+  document.querySelector("#footer-scope").textContent = "Hosted copy · no account or upload";
+  document.querySelector("#reference-link-text").textContent = "Rust documentation";
+  document.querySelector("#reference-link").href = "https://doc.rust-lang.org/";
+  document.querySelector(".sidebar-bottom p").textContent = "Rust Book, Rust by Example, standard library, and language reference (online).";
+  sourceEditor.readOnly = true;
+  sourceEditor.setAttribute("aria-label", "Rust source code (read-only)");
+  saveButton.textContent = "Edit locally";
+  saveButton.title = LOCAL_ONLY_HINT;
+  const rebuild = document.querySelector("#rebuild-game");
+  rebuild.hidden = true;
+}
+
+if (STATIC_MODE) applyStaticMode();
 loadLevels();

@@ -4,21 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#10151c" />
+    <meta name="studio-mode" content="live" />
     <title>Ringen — Learning Studio</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="/" aria-label="Ringen Learning Studio home">
+        <a class="brand" href="./" aria-label="Ringen Learning Studio home">
           <span class="brand-mark" aria-hidden="true">◉</span>
           <span>RINGEN <span class="brand-light">/ LEARNING STUDIO</span></span>
         </a>
         <div class="topbar-status">
           <span class="status-dot"></span>
-          <span>LOCAL WORKSPACE</span>
+          <span id="workspace-label">LOCAL WORKSPACE</span>
         </div>
       </header>
+
+      <div id="static-notice" class="static-notice" role="note" hidden>
+        <strong>Hosted copy.</strong>
+        Lessons, source, and the playable game work here exactly as they do locally. Editing, recompiling, and project checks run <code>cargo</code> on your machine, so they are available in the local studio: <code>./scripts/studio.sh</code>.
+      </div>
 
       <div class="workspace">
         <aside class="sidebar">
@@ -28,7 +34,7 @@
           </nav>
           <div class="sidebar-bottom">
             <div class="side-heading">REFERENCE SHELF</div>
-            <a href="/reading/README.md" target="_blank" rel="noreferrer">Offline Rust docs <span>↗</span></a>
+            <a id="reference-link" href="reading/README.md" target="_blank" rel="noreferrer"><span id="reference-link-text">Offline Rust docs</span> <span>↗</span></a>
             <p>Rust Book, Rust by Example, standard library, and language reference.</p>
           </div>
           <div class="sidebar-foot">RUST GAME PROJECT <span>·</span> EDIT &amp; BUILD</div>
@@ -64,7 +70,7 @@
               </div>
             </div>
             <div class="game-frame-wrap">
-              <iframe id="game-frame" src="/game/" title="Ringen Van Patronage game menu and levels"></iframe>
+              <iframe id="game-frame" src="game/" title="Ringen Van Patronage game menu and levels"></iframe>
             </div>
             <details id="build-details" class="build-details" hidden>
               <summary>Build output</summary>
@@ -111,12 +117,12 @@
             </section>
           </div>
           <footer class="main-footer">
-            <span>Edits save to the selected Rust file before the browser game recompiles.</span>
-            <span>Local workspace · no account or upload</span>
+            <span id="footer-note">Edits save to the selected Rust file before the browser game recompiles.</span>
+            <span id="footer-scope">Local workspace · no account or upload</span>
           </footer>
         </main>
       </div>
     </div>
-    <script src="/app.js" defer></script>
+    <script src="app.js" defer></script>
   </body>
 </html>

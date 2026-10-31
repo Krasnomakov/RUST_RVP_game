@@ -94,7 +94,12 @@ fn handle_connection(mut stream: TcpStream, project_root: &Path, build_state: &B
             "text/javascript; charset=utf-8",
             include_bytes!("../viewer/app.js"),
         ),
-        ("GET", "/game/") | ("GET", "/game") | ("GET", "/game/index.html") => response(
+        ("GET", "/game") => response(
+            200,
+            "text/html; charset=utf-8",
+            b"<!doctype html><meta http-equiv=\"refresh\" content=\"0; url=/game/\">",
+        ),
+        ("GET", "/game/") | ("GET", "/game/index.html") => response(
             200,
             "text/html; charset=utf-8",
             include_bytes!("../viewer/game.html"),

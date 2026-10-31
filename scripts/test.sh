@@ -25,6 +25,8 @@ for crate in "${crates[@]}"; do
     run_step "$crate" "cargo test" cargo test
 done
 
+run_step "$root_dir" "studio export and page smoke test" ./scripts/check-studio.sh
+
 echo
 if [[ "$failures" -eq 0 ]]; then
     echo "All crates passed."

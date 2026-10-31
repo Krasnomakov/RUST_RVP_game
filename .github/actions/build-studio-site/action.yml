@@ -1,0 +1,45 @@
+name: Build Learning Studio site
+description: >-
+  Compiles the Bevy game for the browser and exports the Learning Studio (IDE page, lessons,
+  source viewer, and the embedded game) as a static site.
+
+inputs:
+  output-dir:
+    description: Directory to write the site into. Must not exist yet or be empty.
+    default: site
+
+runs:
+  using: composite
+  steps:
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: ringen-van-patronage-origins
+
+    - name: Install the wasm-bindgen CLI that matches Cargo.lock
+      shell: bash
+      working-directory: ringen-van-patronage-origins
+      run: |
+        version="$(awk '/^name = "wasm-bindgen"$/ {getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)"
+        test -n "$version" || { echo "wasm-bindgen is not in Cargo.lock" >&2; exit 1; }
+        if [[ "$(wasm-bindgen --version 2>/dev/null)" != "wasm-bindgen $version" ]]; then
+          cargo install wasm-bindgen-cli --version "$version" --locked
+        fi
+
+    - name: Build the game for the browser
+      shell: bash
+      working-directory: ringen-van-patronage-origins
+      run: |
+        cargo build --release --target wasm32-unknown-unknown --bin ringen_van_patronage_origins
+        mkdir -p target/game-web
+        wasm-bindgen --target web --out-name ringen_game --out-dir target/game-web \
+          target/wasm32-unknown-unknown/release/ringen_van_patronage_origins.wasm
+
+    - name: Export the static studio
+      shell: bash
+      env:
+        OUTPUT_DIR: ${{ inputs.output-dir }}
+      run: ./scripts/export-studio.sh "$OUTPUT_DIR"

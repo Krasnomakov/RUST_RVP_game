@@ -11,13 +11,26 @@ Prerequisites: [Rust via rustup](https://rustup.rs). On Linux, Bevy also needs s
 ./scripts/studio.sh   # builds the game for the browser and serves the IDE at http://127.0.0.1:4173
 ```
 
+Node.js (or macOS) is optional: it lets `./scripts/test.sh` also run the Learning Studio page checks.
+
 The offline reading shelf in `reading/` is optional and not part of the repository; the studio works without it and links to the online docs instead.
 
 ## Deployment
 
-`.github/workflows/ci.yml` runs `./scripts/test.sh` on every push and pull request. When CI passes on `main`, `.github/workflows/deploy.yml` builds the game for the browser and publishes it to GitHub Pages at `https://<user>.github.io/<repo>/`. The published page is the playable game only; the editing Learning Studio stays a local tool (`./scripts/studio.sh`) because it runs `cargo` on request.
+`.github/workflows/ci.yml` is one pipeline. On every push and pull request it runs `./scripts/test.sh`; when that passes on `main`, a second job builds the Learning Studio and publishes it to GitHub Pages at `https://<user>.github.io/<repo>/`. The build steps live in the composite action `.github/actions/build-studio-site`.
 
-One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**. You can also start a deploy by hand from the Actions tab (**Deploy → Run workflow**).
+The published site is the same studio you run locally: the course map, lessons, source viewer, review prompts, readings, and the playable game in the page. Only what needs `cargo` on your machine is switched off, because a static site cannot run it: **Save & Recompile**, **Recompile game**, and **Run project checks** are disabled (the source is read-only, and CI runs the same checks). Those stay in the local studio, `./scripts/studio.sh`.
+
+One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**. You can also run the pipeline by hand from the Actions tab (**CI/CD → Run workflow**).
+
+Preview the hosted copy locally after a browser build (`./scripts/studio.sh` makes one):
+
+```sh
+./scripts/export-studio.sh /tmp/studio-site
+python3 -m http.server -d /tmp/studio-site 8000   # then open http://127.0.0.1:8000
+```
+
+`./scripts/check-studio.sh` (part of `./scripts/test.sh`) checks the export and runs the page script in both modes without compiling anything.
 
 ## Run the first program
 

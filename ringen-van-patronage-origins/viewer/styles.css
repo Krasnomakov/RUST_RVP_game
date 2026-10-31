@@ -58,6 +58,10 @@ a { color: inherit; }
 .topbar-status { display: flex; align-items: center; gap: 8px; color: #8292a3; font-size: 10px; letter-spacing: .13em; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #69d39a; box-shadow: 0 0 10px #69d39a66; }
 
+.static-notice { padding: 9px 24px; border-bottom: 1px solid var(--border); background: #17242b; color: #a9c6d0; font-size: 11px; line-height: 1.6; }
+.static-notice strong { color: #b8e1d0; }
+.static-notice code { padding: 1px 5px; border-radius: 3px; background: #0f161c; color: #cfe6ee; }
+
 .workspace { display: grid; grid-template-columns: 230px minmax(0, 1fr); min-height: calc(100vh - 58px); }
 
 .sidebar {
