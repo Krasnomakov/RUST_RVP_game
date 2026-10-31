@@ -13,6 +13,12 @@ Prerequisites: [Rust via rustup](https://rustup.rs). On Linux, Bevy also needs s
 
 The offline reading shelf in `reading/` is optional and not part of the repository; the studio works without it and links to the online docs instead.
 
+## Deployment
+
+`.github/workflows/ci.yml` runs `./scripts/test.sh` on every push and pull request. When CI passes on `main`, `.github/workflows/deploy.yml` builds the game for the browser and publishes it to GitHub Pages at `https://<user>.github.io/<repo>/`. The published page is the playable game only; the editing Learning Studio stays a local tool (`./scripts/studio.sh`) because it runs `cargo` on request.
+
+One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**. You can also start a deploy by hand from the Actions tab (**Deploy → Run workflow**).
+
 ## Run the first program
 
 ```sh
